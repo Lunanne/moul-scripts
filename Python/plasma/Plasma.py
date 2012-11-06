@@ -581,10 +581,6 @@ def PtIsSinglePlayerMode():
     """Returns whether the game is in single player mode or not"""
     pass
 
-def PtIsSubscriptionActive():
-    """Returns true if the current player is a paying subscriber"""
-    pass
-
 def PtKillParticles(timeRemaining,pctToKill,particleSystem):
     """Tells particleSystem to kill pctToKill percent of its particles"""
     pass
@@ -828,10 +824,6 @@ def PtUnloadBookGUI(guiName):
 
 def PtUnloadDialog(dialogName):
     """This will unload the GUI dialog by name. If not loaded then nothing will happen"""
-    pass
-
-def PtUpgradeVisitorToExplorer(playerInt):
-    """Upgrades the player to explorer status"""
     pass
 
 def PtUsingUnicode():

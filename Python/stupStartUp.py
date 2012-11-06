@@ -102,16 +102,9 @@ class stupStartUp(ptResponder):
         
         playerList = PtGetAccountPlayerList()
 
-        if PtIsSubscriptionActive():
-            print "stupStartUp: Paying customer"
-            if playerList[0] or len(playerList) > 1:
-                PtShowDialog("GUIDialog04b")
-            else:
-                PtShowDialog("GUIDialog06")
+        if playerList[0] or len(playerList) > 1:
+            PtShowDialog("GUIDialog04b")
         else:
-            print "stupStartUp: Visitor"
-            if playerList[0] or len(playerList) > 1:
-                PtShowDialog("GUIDialog04a")
-            else:
-                PtShowDialog("GUIDialog06")
+            PtShowDialog("GUIDialog06")
+        
                 

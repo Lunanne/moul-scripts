@@ -57,7 +57,6 @@ import PlasmaControlKeys
 import xLinkingBookDefs
 from xPsnlVaultSDL import *
 
-import xVisitorUtils #For non-subscription based players
 
 # define the attributes that will be entered in max
 #PALGUI = ptAttribGUIDialog(2,"The PAL GUI")
@@ -131,12 +130,7 @@ class psnlBookshelf(ptModifier):
         version = 10
         self.version = version
         print "__init__psnlBookshelf v.", version
-        PtLoadDialog(xVisitorUtils.kVisitorNagDialog)
-
-
-    def __del__(self):
-        PtUnloadDialog(xVisitorUtils.kVisitorNagDialog)
-
+        
 
     def OnFirstUpdate(self):
         global AgeStartedIn
@@ -1103,14 +1097,6 @@ class psnlBookshelf(ptModifier):
                 objBookPicked = None
             elif vault.inMyPersonalAge():
                 if bookAge == "Neighborhood":
-                    #Don't allow visitors (i.e. non-subscribers) to delete their neighborhood
-                    if not PtIsSubscriptionActive():
-                        PtShowDialog(xVisitorUtils.kVisitorNagDialog)
-                        actTray.enable()
-                        actBook.enable()
-                        actLock.enable()
-                        return
-                    
                     PtYesNoDialog(self.key, PtGetLocalizedString("Personal.Bookshelf.DeleteNeighborhoodBook"))
                 else:
                     PtYesNoDialog(self.key, PtGetLocalizedString("Personal.Bookshelf.DeleteBook"))

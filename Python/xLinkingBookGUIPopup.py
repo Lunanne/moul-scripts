@@ -66,7 +66,6 @@ import string
 import xLinkingBookDefs
 from xPsnlVaultSDL import *
 import time
-import xVisitorUtils
 
 
 # define the attributes that will be entered in max
@@ -119,23 +118,13 @@ class xLinkingBookGUIPopup(ptModifier):
         minor = 4
         self.version = version
         PtDebugPrint("__init__xLinkingBookGUIPopup v%d.%d" % (version,minor))
-        
-        #Load Explorer Only Dialog (to display when visitors try to display explorer only content)
-        PtLoadDialog(xVisitorUtils.kVisitorNagDialog)
-
-
+       
     def OnServerInitComplete(self):
         # only in the personal age should actBookshelf be anything, so this should only happen in the personal age
         if len(actBookshelf.value) != 0:
             ageSDL = PtGetAgeSDL()
             ageSDL.setFlags("CurrentPage", 1,1)
             ageSDL.sendToClients("CurrentPage")
-
-
-    def __del__(self):
-        "destructor - get rid of any dialogs that we might have loaded"
-        PtUnloadDialog(xVisitorUtils.kVisitorNagDialog)
-
 
     def OnNotify(self,state,id,events):
         global OfferedBookMode
@@ -307,12 +296,7 @@ class xLinkingBookGUIPopup(ptModifier):
                         elif event[2] >= xLinkingBookDefs.kFirstLinkPanelID or event[2] == xLinkingBookDefs.kBookMarkID:
                             PtDebugPrint("xLinkingBookGUIPopup:Book: hit linking panel %s" % (event[2]))
 
-                            #Make sure that any visitors can link to this age!
-                            if not xVisitorUtils.IsVisitorAllowedAge(TargetAge.value):
-                                PtDebugPrint ("xLinkingBookGUIPopup.OnNotify()-->Visitors do not have access to age: %s" % TargetAge.value)
-                                PtShowDialog(xVisitorUtils.kVisitorNagDialog)
-                                return
-                            
+                                                      
                             #Tye: Did this to try and fix linking issues (i.e. moving while trying to link)
                             PtDisableMovementKeys() 
 

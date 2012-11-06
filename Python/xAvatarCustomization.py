@@ -60,7 +60,6 @@ import time
 import os   #used for saving pictures locally
 
 import xACAItems
-import xVisitorUtils
 
 # define the attributes that will be entered in max
 InRoomActivator         = ptAttribActivator(1, "In the Room Activator")
@@ -276,9 +275,6 @@ untintableHeadAcc = [ "03_FAccGoggles", "03_MAccGoggles" ]
 
 AvatarChange = 0
 
-#Free/Paid 
-IsVisitorPlayer = 1  #use this variable so we only have to check once...
-
 
 def SetDefaultSettings():
     "Sets our default vars when we enter the age so we can restore them later"
@@ -473,11 +469,7 @@ def CanShowSeasonal(clothingItem):
 def CanShowClothingItem(clothingItem):
     "returns true if this item is elegable for showing"
     
-    #if we're a visitor, don't allow paid clothing items
-    if IsVisitorPlayer and not clothingItem.free:
-        PtDebugPrint("The following item is not allowed to free players: %s" % clothingItem.name)
-        return false
-    
+      
     # make sure we're not supposed to hide the item
     if (clothingItem.internalOnly and PtIsInternalRelease()) or not clothingItem.internalOnly:
         if (clothingItem.nonStandardItem and ItemInWardrobe(clothingItem)) or not clothingItem.nonStandardItem:
@@ -573,8 +565,7 @@ def IsOptArrow(id):
 class xAvatarCustomization(ptModifier):
     "The Avatar customization python code"
     def __init__(self):
-        global IsVisitorPlayer
-        
+                
         ptModifier.__init__(self)
         self.id = 198
         self.version = 23
@@ -584,14 +575,6 @@ class xAvatarCustomization(ptModifier):
         self.numTries = 0
         self.dirty = 0 # have we changed the clothing since a reset?
         
-        # Set global for visitor players
-        IsVisitorPlayer = not PtIsSubscriptionActive()
-        PtLoadDialog(xVisitorUtils.kVisitorNagDialog)
-        
-        #TESTING!  
-        #IsVisitorPlayer = 1 #set to test visitor player as an explorer, remove for production!
-
-
 
     def SetupCamera(self):
         "Disable firstperson camera and cursor fade"
@@ -630,7 +613,7 @@ class xAvatarCustomization(ptModifier):
 
     def __del__(self):
         "destructor - get rid of any dialogs that we might have loaded"
-        PtUnloadDialog(xVisitorUtils.kVisitorNagDialog)
+        
         
         PtUnloadDialog(kAvCustDialogName)
         cam = ptCamera()
@@ -666,7 +649,6 @@ class xAvatarCustomization(ptModifier):
         global InAvatarCloset
         global listboxDict
         global AvatarChange
-        global IsVisitorPlayer
         # if we don't what dialog it is... it might be the Calibration screen... 
         if id == -1:
             if event == kAction or event == kValueChanged:
@@ -1476,11 +1458,7 @@ class xAvatarCustomization(ptModifier):
                 elif controlID == kHairClickMap:
                     # then this is a hair tinting affair
                     
-                    #Hair color changes are not available to visitors
-                    if IsVisitorPlayer:
-                        PtShowDialog(xVisitorUtils.kVisitorNagDialog)
-                        return
-                    
+                                      
                     colormap = ptGUIControlClickMap(AvCustGUI.dialog.getControlFromTag(kHairClickMap)).getLastMouseUpPoint()
                     colorit = HairMaterial.map.getPixelColor(colormap.getX(),colormap.getY())
                     self.IDrawCrosshair(kHairClickMap,colormap.getX(),colormap.getY())
@@ -1494,7 +1472,6 @@ class xAvatarCustomization(ptModifier):
     def IMorphOneItem(self,knobID,itemName):
         "Morph a specific item"
         global TheCloset
-        global IsVisitorPlayer
         
         if knobID < kMorphSliderOffset or knobID >= kMorphSliderOffset+kNumberOfMorphs:
             return
@@ -1526,17 +1503,6 @@ class xAvatarCustomization(ptModifier):
         avatar = PtGetLocalAvatar()
         gender = avatar.avatar.getAvatarClothingGroup()
 
-        #Limit visitors to not make any physical adjustments
-        if IsVisitorPlayer and knobID != kWeightKnob:
-            if gender == kFemaleClothingGroup:
-                resetVal = avatar.avatar.getMorph("FFace",knobID)
-            else:
-                resetVal = avatar.avatar.getMorph("MFace",knobID)
-            print resetVal  #This is a hack... for some reason I get errors without it!
-            morphKnob.setValue(self.IMorphToSlider(resetVal))
-            PtShowDialog(xVisitorUtils.kVisitorNagDialog)
-            return
-
         #Save state
         if gender == kFemaleClothingGroup:
             avatar.avatar.setMorph("FFace",knobID-kMorphSliderOffset,morphVal)
@@ -1545,7 +1511,6 @@ class xAvatarCustomization(ptModifier):
     
     def ITexMorphItem(self,knobID):
         "Texture morph the avatar"
-        global IsVisitorPlayer
         
         if knobID <= kTexMorphSliderOffset or knobID > kTexMorphSliderOffset+kNumberOfTexMorphs:
             return
@@ -1557,22 +1522,7 @@ class xAvatarCustomization(ptModifier):
             # the age morph is independent of the other texture morphs
             avatar.avatar.setSkinBlend(4,morphVal)
             
-        else:
-            #Limit visitors to not make any physical adjustments
-            if IsVisitorPlayer:
-                #reset knobs
-                morphKnob1 = ptGUIControlValue(AvCustGUI.dialog.getControlFromTag(kEthnic1TexMorph))
-                morphKnob2 = ptGUIControlValue(AvCustGUI.dialog.getControlFromTag(kEthnic2TexMorph))
-                morphKnob3 = ptGUIControlValue(AvCustGUI.dialog.getControlFromTag(kEthnic3TexMorph))
-                
-                morphKnob1.setValue(self.ITexMorphToSlider(avatar.avatar.getSkinBlend(1)))
-                morphKnob2.setValue(self.ITexMorphToSlider(avatar.avatar.getSkinBlend(2)))
-                morphKnob3.setValue(self.ITexMorphToSlider(avatar.avatar.getSkinBlend(3)))
-                
-                #show nag
-                PtShowDialog(xVisitorUtils.kVisitorNagDialog)
-                return
-            
+        else:          
             morphID1 = 0
             morphID2 = 0
             if knobID == kEthnic1TexMorph:
@@ -1878,8 +1828,7 @@ class ClothingItem:
         # seasonTime is a nested tuple. The date: 12/30/03-12/31/03,1/1/04-1/2/04 will be listed as [ [[12,12],[30,31],[03,03]], [[1,1],[1,2],[04,04]] ]
         self.seasonTime = []    # the date that it will show up on (0 for any of these means any, i.e. 0/1/03 means the first day of every month in 2003
                                 # while 1/1/0 or 1/1 means January 1st every year
-        self.free = 0   # Visitors (free players) are allowed limited clothing.  This is set in the max files by specifying "free" in 
-                        # the text option for the Plasma clothing material rollout.
+        
                         
         
         try:
