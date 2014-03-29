@@ -71,7 +71,7 @@ OrientationDlg = ptAttribGUIDialog(3, "The Orientation dialog")
 #--------
 
 gIntroMovie = None
-kAtrusIntroMovie = "avi/URULiveIntro.bik"
+kAtrusIntroMovie = "avi/URULiveIntro.webm"
 
 gIntroStarted = 0
 
@@ -350,10 +350,10 @@ class xOpeningSequence(ptModifier):
             if not gIntroStarted:
                 # show the dialog
                 IntroMovieDlg.dialog.show()
-                gIntroMovie.resume()
-                PtDebugPrint("xOpeningSequence - playing movie",level=kDebugDumpLevel)
+                gIntroMovie.play()
+                PtDebugPrint("xOpeningSequence - playing movie")
             else:
-                PtDebugPrint("xOpeningSequence - movie already playing",level=kDebugDumpLevel)
+                PtDebugPrint("xOpeningSequence - movie already playing")
             gIntroStarted = 1
 
 
