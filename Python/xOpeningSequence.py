@@ -189,7 +189,7 @@ class xOpeningSequence(ptModifier):
         global gOriginalAmbientVolume
         global gOriginalSFXVolume
         global gIntroMovie
-        PtDebugPrint("xOpeningSequence::OnGUINotify id=%d, event=%d control=" % (id,event),control,level=kDebugDumpLevel)
+        PtDebugPrint("xOpeningSequence::OnGUINotify id=%d, event=%d control=" % (id,event),control)
 ###############################################
 ##
 ##  IntroMovie dialog processing
